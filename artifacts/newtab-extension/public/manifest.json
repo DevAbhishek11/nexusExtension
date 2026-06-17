@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "NexTab - Modern New Tab",
+  "version": "1.0.0",
+  "description": "A beautiful, customizable new tab experience with clock, weather, quick links, and more.",
+  "permissions": [
+    "storage",
+    "geolocation"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src *;"
+  },
+  "action": {
+    "default_title": "NexTab",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
+}

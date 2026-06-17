@@ -1,0 +1,419 @@
+Act as a senior Chrome Extension developer, UI/UX designer, and performance engineer.
+
+Build a modern, lightweight, highly customizable Chrome New Tab Extension inspired by "MYNT: Material You New Tab", but significantly improved in design, performance, flexibility, and features.
+
+The extension must be built using:
+- React.js (latest stable)
+- Tailwind CSS (for clean, responsive UI)
+- Chrome Extension Manifest V3
+- Local storage (Chrome storage API)
+- Optional IndexedDB for larger assets
+- PHP backend (for payment verification)
+- Razorpay integration (₹49 one-time premium)
+
+--------------------------------------------------
+🎯 CORE GOAL
+--------------------------------------------------
+Create a fast, minimal, elegant, and customizable new tab experience with modern UI, smooth animations, and powerful multitasking features.
+
+--------------------------------------------------
+🎨 UI / DESIGN REQUIREMENTS
+--------------------------------------------------
+- Use modern design principles (glassmorphism + minimalism)
+- Smooth animations (use Framer Motion if needed)
+- Clean layout with proper spacing and hierarchy
+- Tailwind-based design system
+- Support:
+  - Light mode
+  - Dark mode
+  - Auto system theme
+- Dynamic color extraction from wallpaper (Material You style)
+- Multiple font support:
+  - Preloaded Google Fonts
+  - Custom font upload by user
+- Rounded UI, blur effects, subtle shadows
+- Highly responsive and fluid UI
+
+--------------------------------------------------
+🧩 CORE FEATURES
+--------------------------------------------------
+
+1. 🏠 New Tab Dashboard
+- Time, date, greeting message
+- Elegant weather widget (API-based)
+- Smooth animated transitions
+
+2. 🖼️ Wallpaper System
+- Upload custom wallpapers
+- Online wallpaper integration (optional)
+- Controls:
+  - Blur
+  - Brightness
+  - Black overlay opacity (default enabled)
+  - Gradient overlay customization
+
+3. 🔤 Font System
+- Select from predefined fonts
+- Upload custom font files (.ttf, .otf)
+- Live preview before applying
+
+4. 🌤️ Weather Widget
+- Auto location detection
+- Clean UI with icons
+- Temperature, condition, location
+
+5. ⚡ Quick Links / Shortcuts
+- Add, edit, delete links
+- Drag-and-drop reorder
+- Icons (auto fetch or manual)
+- Categories/folders
+
+6. 🧠 Smart Multitasking View
+- Open multiple websites inside draggable/resizable panels (iframe-based)
+- Grid layout support
+- Split screen mode
+- Floating windows inside new tab
+- Save workspace layouts
+
+7. 🧹 Clean Mode
+- Hide all widgets for distraction-free mode
+
+8. 🔍 Search Bar
+- Google default
+- Option to change search engine
+
+--------------------------------------------------
+⚙️ ADVANCED FEATURES
+--------------------------------------------------
+- Keyboard shortcuts
+- Command palette (like VS Code)
+- Sync settings across devices (Chrome sync storage)
+- Import/export settings
+- Performance mode toggle
+- Lazy loading components
+- Debounced state updates
+
+--------------------------------------------------
+💰 MONETIZATION (VERY IMPORTANT)
+--------------------------------------------------
+
+1. Ads System:
+- Ads should NEVER disturb user experience
+- Show ads ONLY when:
+  - A tab is open
+  - User is idle for 60–120 seconds
+- Display ads in:
+  - Subtle card or bottom section
+  - Non-intrusive format
+- Include a soft message:
+  "Support us to keep this extension free ❤️"
+
+- Smart ad visibility:
+  - Fade-in animation
+  - Auto-hide on interaction
+
+2. Premium Plan:
+- ₹49 one-time payment
+- Payment gateway: Razorpay
+
+Premium benefits:
+- Remove all ads
+- Unlock premium wallpapers
+- Advanced customization options
+
+3. Payment Flow:
+- Razorpay checkout integration
+- Backend: PHP API for verification
+- Store premium status:
+  - Chrome storage + backend validation
+
+--------------------------------------------------
+🔐 BACKEND (PHP API)
+--------------------------------------------------
+- Verify Razorpay payment signature
+- Store user premium status
+- API endpoints:
+  - /verify-payment
+  - /check-premium
+- Use secure token-based validation
+
+--------------------------------------------------
+⚡ PERFORMANCE OPTIMIZATION
+--------------------------------------------------
+- Keep bundle size minimal
+- Code splitting
+- Lazy load heavy components
+- Optimize re-renders
+- Use memoization
+- Avoid unnecessary API calls
+
+--------------------------------------------------
+📦 PROJECT STRUCTURE
+--------------------------------------------------
+- /src
+  - /components
+  - /features
+  - /hooks
+  - /utils
+  - /pages
+- /public
+- manifest.json
+- background.js (service worker)
+
+--------------------------------------------------
+🧪 UX DETAILS
+--------------------------------------------------
+- Smooth hover effects
+- Micro-interactions
+- Context menus
+- Smart defaults (works perfectly without setup)
+- Onboarding screen for first-time users
+
+--------------------------------------------------
+🔒 SECURITY
+--------------------------------------------------
+- Sanitize user inputs (fonts, URLs)
+- Restrict iframe sources safely
+- Follow Chrome extension CSP rules
+
+--------------------------------------------------
+🎯 EXTRA POLISH
+--------------------------------------------------
+- Subtle sound effects (optional toggle)
+- Daily quotes widget (optional)
+- To-do widget (optional)
+- Notes panel
+- Focus mode (Pomodoro timer)
+
+--------------------------------------------------
+📱 FINAL OUTPUT EXPECTATIONS
+--------------------------------------------------
+- Fully working Chrome Extension (Manifest V3)
+- Clean, modular React code
+- Beautiful UI comparable or better than MYNT
+- Lightweight and fast (<2s load time)
+- Production-ready architecture
+
+--------------------------------------------------
+
+Now generate:
+1. Full project structure
+2. Key React components
+3. Manifest.json
+4. Tailwind setup
+5. Razorpay + PHP integration sample
+6. Ads logic implementation
+7. Example UI layout code
+8. Performance optimization strategies
+9. Deployment steps
+
+Ensure code is clean, modular, scalable, and production-ready.Act as a senior Chrome Extension developer, UI/UX designer, and performance engineer.
+
+Build a modern, lightweight, highly customizable Chrome New Tab Extension inspired by "MYNT: Material You New Tab", but significantly improved in design, performance, flexibility, and features.
+
+The extension must be built using:
+- React.js (latest stable)
+- Tailwind CSS (for clean, responsive UI)
+- Chrome Extension Manifest V3
+- Local storage (Chrome storage API)
+- Optional IndexedDB for larger assets
+- PHP backend (for payment verification)
+- Razorpay integration (₹49 one-time premium)
+
+--------------------------------------------------
+🎯 CORE GOAL
+--------------------------------------------------
+Create a fast, minimal, elegant, and customizable new tab experience with modern UI, smooth animations, and powerful multitasking features.
+
+--------------------------------------------------
+🎨 UI / DESIGN REQUIREMENTS
+--------------------------------------------------
+- Use modern design principles (glassmorphism + minimalism)
+- Smooth animations (use Framer Motion if needed)
+- Clean layout with proper spacing and hierarchy
+- Tailwind-based design system
+- Support:
+  - Light mode
+  - Dark mode
+  - Auto system theme
+- Dynamic color extraction from wallpaper (Material You style)
+- Multiple font support:
+  - Preloaded Google Fonts
+  - Custom font upload by user
+- Rounded UI, blur effects, subtle shadows
+- Highly responsive and fluid UI
+
+--------------------------------------------------
+🧩 CORE FEATURES
+--------------------------------------------------
+
+1. 🏠 New Tab Dashboard
+- Time, date, greeting message
+- Elegant weather widget (API-based)
+- Smooth animated transitions
+
+2. 🖼️ Wallpaper System
+- Upload custom wallpapers
+- Online wallpaper integration (optional)
+- Controls:
+  - Blur
+  - Brightness
+  - Black overlay opacity (default enabled)
+  - Gradient overlay customization
+
+3. 🔤 Font System
+- Select from predefined fonts
+- Upload custom font files (.ttf, .otf)
+- Live preview before applying
+
+4. 🌤️ Weather Widget
+- Auto location detection
+- Clean UI with icons
+- Temperature, condition, location
+
+5. ⚡ Quick Links / Shortcuts
+- Add, edit, delete links
+- Drag-and-drop reorder
+- Icons (auto fetch or manual)
+- Categories/folders
+
+6. 🧠 Smart Multitasking View
+- Open multiple websites inside draggable/resizable panels (iframe-based)
+- Grid layout support
+- Split screen mode
+- Floating windows inside new tab
+- Save workspace layouts
+
+7. 🧹 Clean Mode
+- Hide all widgets for distraction-free mode
+
+8. 🔍 Search Bar
+- Google default
+- Option to change search engine
+
+--------------------------------------------------
+⚙️ ADVANCED FEATURES
+--------------------------------------------------
+- Keyboard shortcuts
+- Command palette (like VS Code)
+- Sync settings across devices (Chrome sync storage)
+- Import/export settings
+- Performance mode toggle
+- Lazy loading components
+- Debounced state updates
+
+--------------------------------------------------
+💰 MONETIZATION (VERY IMPORTANT)
+--------------------------------------------------
+
+1. Ads System:
+- Ads should NEVER disturb user experience
+- Show ads ONLY when:
+  - A tab is open
+  - User is idle for 60–120 seconds
+- Display ads in:
+  - Subtle card or bottom section
+  - Non-intrusive format
+- Include a soft message:
+  "Support us to keep this extension free ❤️"
+
+- Smart ad visibility:
+  - Fade-in animation
+  - Auto-hide on interaction
+
+2. Premium Plan:
+- ₹49 one-time payment
+- Payment gateway: Razorpay
+
+Premium benefits:
+- Remove all ads
+- Unlock premium wallpapers
+- Advanced customization options
+
+3. Payment Flow:
+- Razorpay checkout integration
+- Backend: PHP API for verification
+- Store premium status:
+  - Chrome storage + backend validation
+
+--------------------------------------------------
+🔐 BACKEND (PHP API)
+--------------------------------------------------
+- Verify Razorpay payment signature
+- Store user premium status
+- API endpoints:
+  - /verify-payment
+  - /check-premium
+- Use secure token-based validation
+
+--------------------------------------------------
+⚡ PERFORMANCE OPTIMIZATION
+--------------------------------------------------
+- Keep bundle size minimal
+- Code splitting
+- Lazy load heavy components
+- Optimize re-renders
+- Use memoization
+- Avoid unnecessary API calls
+
+--------------------------------------------------
+📦 PROJECT STRUCTURE
+--------------------------------------------------
+- /src
+  - /components
+  - /features
+  - /hooks
+  - /utils
+  - /pages
+- /public
+- manifest.json
+- background.js (service worker)
+
+--------------------------------------------------
+🧪 UX DETAILS
+--------------------------------------------------
+- Smooth hover effects
+- Micro-interactions
+- Context menus
+- Smart defaults (works perfectly without setup)
+- Onboarding screen for first-time users
+
+--------------------------------------------------
+🔒 SECURITY
+--------------------------------------------------
+- Sanitize user inputs (fonts, URLs)
+- Restrict iframe sources safely
+- Follow Chrome extension CSP rules
+
+--------------------------------------------------
+🎯 EXTRA POLISH
+--------------------------------------------------
+- Subtle sound effects (optional toggle)
+- Daily quotes widget (optional)
+- To-do widget (optional)
+- Notes panel
+- Focus mode (Pomodoro timer)
+
+--------------------------------------------------
+📱 FINAL OUTPUT EXPECTATIONS
+--------------------------------------------------
+- Fully working Chrome Extension (Manifest V3)
+- Clean, modular React code
+- Beautiful UI comparable or better than MYNT
+- Lightweight and fast (<2s load time)
+- Production-ready architecture
+
+--------------------------------------------------
+
+Now generate:
+1. Full project structure
+2. Key React components
+3. Manifest.json
+4. Tailwind setup
+5. Razorpay + PHP integration sample
+6. Ads logic implementation
+7. Example UI layout code
+8. Performance optimization strategies
+9. Deployment steps
+
+Ensure code is clean, modular, scalable, and production-ready.
