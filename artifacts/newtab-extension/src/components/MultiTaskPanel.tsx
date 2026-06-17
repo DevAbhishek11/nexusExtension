@@ -218,7 +218,7 @@ function PanelFrame({ panel, onUpdate, onRemove, onFocus }: {
               className="flex items-center gap-1 text-white/50 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors"
               title="Device"
             >
-              {device.icon}
+              {device.icon} this is that icon
               <ChevronDown size={9} />
             </button>
             {showDevices && (
@@ -507,8 +507,8 @@ export function MultiTaskPanel() {
   if (!visible) {
     return (
       <button
-        onClick={() => setVisible(true)}
-        className="fixed bottom-6 right-6 z-20 glass p-3 rounded-full text-white/60 hover:text-white hover:scale-110 transition-all shadow-lg"
+        onClick={() => setVisible(!visible)}
+        className="fixed z-20 glass p-2 rounded-full text-white/60 hover:text-white hover:scale-110 transition-all shadow-lg"
         title="Open Multi-Panel (split screen)"
         data-testid="multitask-open-button"
       >
@@ -538,7 +538,7 @@ export function MultiTaskPanel() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[150] glass-card rounded-2xl px-3 py-2 flex items-center gap-1 shadow-2xl pointer-events-auto border border-white/15"
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-[150] glass-card rounded-2xl px-3 py-2 flex items-center gap-1 shadow-2xl pointer-events-auto border border-white/15"
         data-testid="multitask-toolbar"
       >
         <button

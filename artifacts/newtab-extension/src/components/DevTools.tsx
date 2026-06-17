@@ -632,7 +632,7 @@ export function DevTools() {
     <>
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-20 right-6 z-20 glass p-3 rounded-full text-white/60 hover:text-white hover:scale-110 transition-all shadow-lg"
+        className="fixed z-20 glass p-2 rounded-full text-white/60 hover:text-white hover:scale-110 transition-all shadow-lg"
         title="Developer Tools"
         data-testid="devtools-toggle-button"
       >

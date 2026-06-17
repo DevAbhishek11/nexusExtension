@@ -5,6 +5,9 @@ import {
   Wifi, Battery, BatteryCharging
 } from "lucide-react";
 import { useSettings } from "@/store/useStore";
+import { MultiTaskPanel } from "./MultiTaskPanel";
+import { AmbientPlayer } from "./AmbientPlayer";
+import { DevTools } from "./DevTools";
 
 interface TopbarProps {
   onOpenSettings: () => void;
@@ -77,6 +80,11 @@ export function Topbar({ onOpenSettings, onOpenPremium }: TopbarProps) {
 
       {/* Right — controls */}
       <div className="flex items-center gap-1.5">
+        <DevTools />
+        <AmbientPlayer />
+
+        <MultiTaskPanel />
+
         {/* Keyboard shortcuts */}
         <div
           className="relative"

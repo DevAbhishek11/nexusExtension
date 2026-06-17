@@ -143,9 +143,6 @@ export function NewTab() {
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <AdBanner onUpgrade={() => setPremiumOpen(true)} />
       <PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />
-      <MultiTaskPanel />
-      <AmbientPlayer />
-      <DevTools />
     </div>
   );
 }

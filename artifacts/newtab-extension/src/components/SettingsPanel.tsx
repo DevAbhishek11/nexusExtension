@@ -21,7 +21,6 @@ const WALLPAPER_PRESETS = [
   { name: "Forest", value: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80" },
   { name: "City Night", value: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80" },
   { name: "Aurora", value: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80" },
-  { name: "Abstract", value: "https://images.unsplash.com/photo-1617396900799-f4ec2b43c7d3?w=1920&q=80" },
 ];
 
 interface SectionProps { title: string; children: React.ReactNode; }

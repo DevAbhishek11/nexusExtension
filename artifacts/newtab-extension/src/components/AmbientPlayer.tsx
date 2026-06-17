@@ -185,7 +185,7 @@ export function AmbientPlayer() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className={`fixed bottom-[8.5rem] right-6 z-20 glass p-3 rounded-full transition-all shadow-lg hover:scale-110 ${activeId ? "text-primary border-primary/40" : "text-white/60 hover:text-white"}`}
+        className={`fixed z-20 glass p-2 rounded-full transition-all shadow-lg hover:scale-110 ${activeId ? "text-primary border-primary/40" : "text-white/60 hover:text-white"}`}
         title="Ambient Sounds"
         data-testid="ambient-player-toggle"
       >
