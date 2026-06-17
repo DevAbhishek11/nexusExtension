@@ -2,9 +2,9 @@ import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Settings, Sun, Moon, Monitor, Image, Upload, Sliders, Search,
-  Eye, EyeOff, Type, Bell, BellOff, Zap, ZapOff, Download, Upload as UploadIcon, Palette
+  Eye, EyeOff, Type, Bell, BellOff, Zap, ZapOff, Download, Upload as UploadIcon, Palette, Trash2
 } from "lucide-react";
-import { useSettings, AppSettings } from "@/store/useStore";
+import { useSettings, useCustomWallpapers, AppSettings } from "@/store/useStore";
 
 const FONTS = ["Inter", "Poppins", "Playfair Display", "JetBrains Mono"];
 const SEARCH_ENGINES = [
@@ -85,6 +85,7 @@ function SliderRow({ label, value, min, max, onChange, unit = "" }: SliderRowPro
 
 export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { settings, updateSettings } = useSettings();
+  const { customWallpapers, addCustomWallpaper, deleteCustomWallpaper } = useCustomWallpapers();
   const fileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"appearance" | "widgets" | "wallpaper" | "search">("appearance");
 
@@ -92,9 +93,16 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => updateSettings({ wallpaper: reader.result as string });
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const name = file.name.replace(/\.[^.]+$/, "") || `Wallpaper ${Date.now()}`;
+      const id = addCustomWallpaper(name, dataUrl);
+      updateSettings({ wallpaper: `custom:${id}` });
+    };
     reader.readAsDataURL(file);
-  }, [updateSettings]);
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
+  }, [addCustomWallpaper, updateSettings]);
 
   const exportSettings = () => {
     const data = JSON.stringify({ settings, version: 1 }, null, 2);
@@ -319,7 +327,7 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                     </div>
                   </Section>
 
-                  <Section title="Custom Wallpaper">
+                  <Section title="Upload Wallpaper">
                     <button
                       onClick={() => fileRef.current?.click()}
                       className="w-full py-3 border-2 border-dashed border-white/30 hover:border-white/60 rounded-xl text-white/60 hover:text-white text-sm transition-all flex items-center justify-center gap-2"
@@ -330,6 +338,49 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                     </button>
                     <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleWallpaperUpload} />
                   </Section>
+
+                  {customWallpapers.length > 0 && (
+                    <Section title="Your Uploads">
+                      <div className="grid grid-cols-2 gap-2">
+                        {customWallpapers.map(cw => {
+                          const refId = `custom:${cw.id}`;
+                          const isActive = settings.wallpaper === refId;
+                          return (
+                            <div
+                              key={cw.id}
+                              className={`relative h-16 rounded-xl overflow-hidden border-2 transition-all group ${isActive ? "border-primary" : "border-transparent hover:border-white/30"}`}
+                            >
+                              <button
+                                className="absolute inset-0 w-full h-full"
+                                onClick={() => updateSettings({ wallpaper: refId })}
+                              >
+                                <img src={cw.dataUrl} alt={cw.name} className="w-full h-full object-cover" />
+                                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs py-0.5 text-center truncate px-1">
+                                  {cw.name}
+                                </div>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isActive) updateSettings({ wallpaper: null });
+                                  deleteCustomWallpaper(cw.id);
+                                }}
+                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white/80 hover:text-red-400 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Delete"
+                              >
+                                <Trash2 size={10} />
+                              </button>
+                              {isActive && (
+                                <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </Section>
+                  )}
 
                   <Section title="Adjustments">
                     <SliderRow label="Blur" value={settings.wallpaperBlur} min={0} max={20} onChange={v => updateSettings({ wallpaperBlur: v })} unit="px" />

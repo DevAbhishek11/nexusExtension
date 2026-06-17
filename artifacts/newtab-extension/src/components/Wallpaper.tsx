@@ -1,7 +1,8 @@
-import { useSettings } from "@/store/useStore";
+import { useSettings, useCustomWallpapers } from "@/store/useStore";
 
 export function Wallpaper() {
   const { settings } = useSettings();
+  const { resolveWallpaper } = useCustomWallpapers();
 
   const gradientBg = "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)";
 
@@ -9,7 +10,9 @@ export function Wallpaper() {
     background: `rgba(0,0,0,${settings.wallpaperOverlayOpacity / 100})`,
   };
 
-  if (!settings.wallpaper) {
+  const resolvedSrc = resolveWallpaper(settings.wallpaper);
+
+  if (!resolvedSrc) {
     return (
       <div className="fixed inset-0 -z-10">
         <div
@@ -20,7 +23,6 @@ export function Wallpaper() {
           }}
         />
         <div className="absolute inset-0" style={overlayStyle} />
-        {/* Subtle animated gradient overlay */}
         <div
           className="absolute inset-0 opacity-40"
           style={{
@@ -34,7 +36,7 @@ export function Wallpaper() {
   return (
     <div className="fixed inset-0 -z-10">
       <img
-        src={settings.wallpaper}
+        src={resolvedSrc}
         alt="Wallpaper"
         className="absolute inset-0 w-full h-full object-cover"
         style={{
