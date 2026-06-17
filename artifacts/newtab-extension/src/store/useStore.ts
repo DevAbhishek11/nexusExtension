@@ -243,14 +243,21 @@ export function useCustomWallpapers() {
   const addCustomWallpaper = useCallback((name: string, dataUrl: string): string => {
     const id = `cw_${Date.now()}`;
     const entry: CustomWallpaper = { id, name, dataUrl, addedAt: Date.now() };
-    _customWallpapers = [..._customWallpapers, entry];
-    try {
-      localStorage.setItem("nt_custom_wallpapers", JSON.stringify(_customWallpapers));
-    } catch {
-      // If quota exceeded, remove oldest and retry
-      _customWallpapers = _customWallpapers.slice(-3);
-      try { localStorage.setItem("nt_custom_wallpapers", JSON.stringify(_customWallpapers)); } catch { /* ignore */ }
+    const next = [..._customWallpapers, entry];
+    // Try saving; if quota exceeded, evict oldest one at a time until it fits
+    let toSave = next;
+    let saved = false;
+    while (toSave.length > 0) {
+      try {
+        localStorage.setItem("nt_custom_wallpapers", JSON.stringify(toSave));
+        saved = true;
+        break;
+      } catch {
+        toSave = toSave.slice(1); // drop oldest
+      }
     }
+    if (!saved) throw new Error("localStorage quota exceeded even after eviction");
+    _customWallpapers = toSave;
     notify();
     return id;
   }, []);

@@ -88,20 +88,48 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
   const { customWallpapers, addCustomWallpaper, deleteCustomWallpaper } = useCustomWallpapers();
   const fileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"appearance" | "widgets" | "wallpaper" | "search">("appearance");
+  const [uploadState, setUploadState] = useState<"idle" | "processing" | "error">("idle");
 
   const handleWallpaperUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const name = file.name.replace(/\.[^.]+$/, "") || `Wallpaper ${Date.now()}`;
+    e.target.value = "";
+    setUploadState("processing");
+
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const name = file.name.replace(/\.[^.]+$/, "") || `Wallpaper ${Date.now()}`;
-      const id = addCustomWallpaper(name, dataUrl);
-      updateSettings({ wallpaper: `custom:${id}` });
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          // Compress: max 1920×1080, JPEG 75% — reduces 4-8MB photos to ~200-400KB
+          const MAX_W = 1920;
+          const MAX_H = 1080;
+          let { width, height } = img;
+          if (width > MAX_W || height > MAX_H) {
+            const ratio = Math.min(MAX_W / width, MAX_H / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.75);
+          const id = addCustomWallpaper(name, compressed);
+          updateSettings({ wallpaper: `custom:${id}` });
+          setUploadState("idle");
+        } catch {
+          setUploadState("error");
+          setTimeout(() => setUploadState("idle"), 3000);
+        }
+      };
+      img.onerror = () => { setUploadState("error"); setTimeout(() => setUploadState("idle"), 3000); };
+      img.src = reader.result as string;
     };
+    reader.onerror = () => { setUploadState("error"); setTimeout(() => setUploadState("idle"), 3000); };
     reader.readAsDataURL(file);
-    // Reset input so the same file can be re-selected
-    e.target.value = "";
   }, [addCustomWallpaper, updateSettings]);
 
   const exportSettings = () => {
@@ -329,14 +357,25 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
 
                   <Section title="Upload Wallpaper">
                     <button
-                      onClick={() => fileRef.current?.click()}
-                      className="w-full py-3 border-2 border-dashed border-white/30 hover:border-white/60 rounded-xl text-white/60 hover:text-white text-sm transition-all flex items-center justify-center gap-2"
+                      onClick={() => uploadState === "idle" && fileRef.current?.click()}
+                      disabled={uploadState === "processing"}
+                      className={`w-full py-3 border-2 border-dashed rounded-xl text-sm transition-all flex items-center justify-center gap-2
+                        ${uploadState === "processing" ? "border-white/20 text-white/40 cursor-wait" : ""}
+                        ${uploadState === "error" ? "border-red-400/60 text-red-400" : ""}
+                        ${uploadState === "idle" ? "border-white/30 hover:border-white/60 text-white/60 hover:text-white cursor-pointer" : ""}
+                      `}
                       data-testid="upload-wallpaper-button"
                     >
-                      <Upload size={16} />
-                      Upload Image
+                      {uploadState === "processing" ? (
+                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" /> Compressing…</>
+                      ) : uploadState === "error" ? (
+                        <><Upload size={16} /> Save failed — try a smaller image</>
+                      ) : (
+                        <><Upload size={16} /> Upload Image</>
+                      )}
                     </button>
                     <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleWallpaperUpload} />
+                    <p className="text-white/30 text-xs text-center">Images are compressed to fit in browser storage</p>
                   </Section>
 
                   {customWallpapers.length > 0 && (
