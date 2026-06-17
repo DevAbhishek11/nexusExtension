@@ -4,7 +4,7 @@ import {
   X, Settings, Sun, Moon, Monitor, Image, Upload, Sliders, Search,
   Eye, EyeOff, Type, Bell, BellOff, Zap, ZapOff, Download, Upload as UploadIcon, Palette, Trash2
 } from "lucide-react";
-import { useSettings, useCustomWallpapers, AppSettings } from "@/store/useStore";
+import { useSettings, useCustomWallpapers, useWallpaperSrc, AppSettings } from "@/store/useStore";
 
 const FONTS = ["Inter", "Poppins", "Playfair Display", "JetBrains Mono"];
 const SEARCH_ENGINES = [
@@ -82,6 +82,36 @@ function SliderRow({ label, value, min, max, onChange, unit = "" }: SliderRowPro
   );
 }
 
+// Thumbnail that loads its image from IndexedDB asynchronously
+function WallpaperThumb({ id, name, isActive, onSelect, onDelete }: {
+  id: string; name: string; isActive: boolean;
+  onSelect: () => void; onDelete: () => void;
+}) {
+  const src = useWallpaperSrc(`custom:${id}`);
+  return (
+    <div className={`relative h-16 rounded-xl overflow-hidden border-2 transition-all group ${isActive ? "border-primary" : "border-transparent hover:border-white/30"}`}>
+      <button className="absolute inset-0 w-full h-full" onClick={onSelect}>
+        {src
+          ? <img src={src} alt={name} className="w-full h-full object-cover" />
+          : <div className="w-full h-full bg-white/10 animate-pulse" />}
+        <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs py-0.5 text-center truncate px-1">{name}</div>
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white/80 hover:text-red-400 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        title="Delete"
+      >
+        <Trash2 size={10} />
+      </button>
+      {isActive && (
+        <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+          <div className="w-1.5 h-1.5 rounded-full bg-white" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { settings, updateSettings } = useSettings();
   const { customWallpapers, addCustomWallpaper, deleteCustomWallpaper } = useCustomWallpapers();
@@ -116,9 +146,14 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
           const ctx = canvas.getContext("2d")!;
           ctx.drawImage(img, 0, 0, width, height);
           const compressed = canvas.toDataURL("image/jpeg", 0.75);
-          const id = addCustomWallpaper(name, compressed);
-          updateSettings({ wallpaper: `custom:${id}` });
-          setUploadState("idle");
+          // addCustomWallpaper is now async — saves to IndexedDB
+          addCustomWallpaper(name, compressed).then(id => {
+            updateSettings({ wallpaper: `custom:${id}` });
+            setUploadState("idle");
+          }).catch(() => {
+            setUploadState("error");
+            setTimeout(() => setUploadState("idle"), 3000);
+          });
         } catch {
           setUploadState("error");
           setTimeout(() => setUploadState("idle"), 3000);
@@ -380,42 +415,19 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                   {customWallpapers.length > 0 && (
                     <Section title="Your Uploads">
                       <div className="grid grid-cols-2 gap-2">
-                        {customWallpapers.map(cw => {
-                          const refId = `custom:${cw.id}`;
-                          const isActive = settings.wallpaper === refId;
-                          return (
-                            <div
-                              key={cw.id}
-                              className={`relative h-16 rounded-xl overflow-hidden border-2 transition-all group ${isActive ? "border-primary" : "border-transparent hover:border-white/30"}`}
-                            >
-                              <button
-                                className="absolute inset-0 w-full h-full"
-                                onClick={() => updateSettings({ wallpaper: refId })}
-                              >
-                                <img src={cw.dataUrl} alt={cw.name} className="w-full h-full object-cover" />
-                                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs py-0.5 text-center truncate px-1">
-                                  {cw.name}
-                                </div>
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (isActive) updateSettings({ wallpaper: null });
-                                  deleteCustomWallpaper(cw.id);
-                                }}
-                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white/80 hover:text-red-400 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Delete"
-                              >
-                                <Trash2 size={10} />
-                              </button>
-                              {isActive && (
-                                <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                        {customWallpapers.map(cw => (
+                          <WallpaperThumb
+                            key={cw.id}
+                            id={cw.id}
+                            name={cw.name}
+                            isActive={settings.wallpaper === `custom:${cw.id}`}
+                            onSelect={() => updateSettings({ wallpaper: `custom:${cw.id}` })}
+                            onDelete={() => {
+                              if (settings.wallpaper === `custom:${cw.id}`) updateSettings({ wallpaper: null });
+                              deleteCustomWallpaper(cw.id);
+                            }}
+                          />
+                        ))}
                       </div>
                     </Section>
                   )}

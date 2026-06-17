@@ -1,16 +1,11 @@
-import { useSettings, useCustomWallpapers } from "@/store/useStore";
+import { useSettings, useWallpaperSrc } from "@/store/useStore";
 
 export function Wallpaper() {
   const { settings } = useSettings();
-  const { resolveWallpaper } = useCustomWallpapers();
+  const resolvedSrc = useWallpaperSrc(settings.wallpaper);
 
   const gradientBg = "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)";
-
-  const overlayStyle = {
-    background: `rgba(0,0,0,${settings.wallpaperOverlayOpacity / 100})`,
-  };
-
-  const resolvedSrc = resolveWallpaper(settings.wallpaper);
+  const overlayStyle = { background: `rgba(0,0,0,${settings.wallpaperOverlayOpacity / 100})` };
 
   if (!resolvedSrc) {
     return (
@@ -26,7 +21,8 @@ export function Wallpaper() {
         <div
           className="absolute inset-0 opacity-40"
           style={{
-            background: "radial-gradient(ellipse at 30% 40%, rgba(120,80,255,0.3) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(59,130,246,0.3) 0%, transparent 60%)",
+            background:
+              "radial-gradient(ellipse at 30% 40%, rgba(120,80,255,0.3) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(59,130,246,0.3) 0%, transparent 60%)",
           }}
         />
       </div>
@@ -43,7 +39,9 @@ export function Wallpaper() {
           filter: [
             settings.wallpaperBlur > 0 ? `blur(${settings.wallpaperBlur}px)` : "",
             settings.wallpaperBrightness !== 100 ? `brightness(${settings.wallpaperBrightness}%)` : "",
-          ].filter(Boolean).join(" ") || undefined,
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined,
         }}
       />
       <div className="absolute inset-0" style={overlayStyle} />

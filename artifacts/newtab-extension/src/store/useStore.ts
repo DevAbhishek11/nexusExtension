@@ -115,10 +115,10 @@ function saveToStorage<T>(key: string, value: T): void {
   }
 }
 
+// CustomWallpaper metadata only — image data lives in IndexedDB, not localStorage
 export interface CustomWallpaper {
   id: string;
   name: string;
-  dataUrl: string;
   addedAt: number;
 }
 
@@ -240,42 +240,53 @@ export function useCustomWallpapers() {
     return () => { listeners.delete(cb); };
   }, []);
 
-  const addCustomWallpaper = useCallback((name: string, dataUrl: string): string => {
+  // Returns the new ID on success; throws on failure
+  const addCustomWallpaper = useCallback(async (name: string, dataUrl: string): Promise<string> => {
+    const { saveWallpaperToDB } = await import("@/utils/wallpaperDB");
     const id = `cw_${Date.now()}`;
-    const entry: CustomWallpaper = { id, name, dataUrl, addedAt: Date.now() };
-    const next = [..._customWallpapers, entry];
-    // Try saving; if quota exceeded, evict oldest one at a time until it fits
-    let toSave = next;
-    let saved = false;
-    while (toSave.length > 0) {
-      try {
-        localStorage.setItem("nt_custom_wallpapers", JSON.stringify(toSave));
-        saved = true;
-        break;
-      } catch {
-        toSave = toSave.slice(1); // drop oldest
-      }
-    }
-    if (!saved) throw new Error("localStorage quota exceeded even after eviction");
-    _customWallpapers = toSave;
+    // Save image data to IndexedDB (no size limit issues)
+    await saveWallpaperToDB(id, dataUrl);
+    // Save only tiny metadata to localStorage
+    const meta: CustomWallpaper = { id, name, addedAt: Date.now() };
+    _customWallpapers = [..._customWallpapers, meta];
+    saveToStorage("nt_custom_wallpapers", _customWallpapers);
     notify();
     return id;
   }, []);
 
-  const deleteCustomWallpaper = useCallback((id: string) => {
+  const deleteCustomWallpaper = useCallback(async (id: string) => {
+    const { deleteWallpaperFromDB } = await import("@/utils/wallpaperDB");
+    await deleteWallpaperFromDB(id);
     _customWallpapers = _customWallpapers.filter(w => w.id !== id);
-    localStorage.setItem("nt_custom_wallpapers", JSON.stringify(_customWallpapers));
+    saveToStorage("nt_custom_wallpapers", _customWallpapers);
     notify();
   }, []);
 
-  const resolveWallpaper = useCallback((wallpaper: string | null): string | null => {
-    if (!wallpaper) return null;
-    if (wallpaper.startsWith("custom:")) {
-      const id = wallpaper.slice(7);
-      return _customWallpapers.find(w => w.id === id)?.dataUrl ?? null;
-    }
-    return wallpaper;
-  }, []);
+  return { customWallpapers: _customWallpapers, addCustomWallpaper, deleteCustomWallpaper };
+}
 
-  return { customWallpapers: _customWallpapers, addCustomWallpaper, deleteCustomWallpaper, resolveWallpaper };
+// Hook to resolve a wallpaper reference to an actual src string (async for custom: IDs)
+export function useWallpaperSrc(wallpaper: string | null): string | null {
+  const [src, setSrc] = useState<string | null>(() =>
+    // If it's a preset URL (not a custom: ref), use it immediately
+    wallpaper && !wallpaper.startsWith("custom:") ? wallpaper : null
+  );
+
+  useEffect(() => {
+    if (!wallpaper) { setSrc(null); return; }
+    if (!wallpaper.startsWith("custom:")) { setSrc(wallpaper); return; }
+
+    const id = wallpaper.slice(7);
+    let cancelled = false;
+    import("@/utils/wallpaperDB").then(({ loadWallpaperFromDB }) =>
+      loadWallpaperFromDB(id)
+    ).then(dataUrl => {
+      if (!cancelled) setSrc(dataUrl);
+    }).catch(() => {
+      if (!cancelled) setSrc(null);
+    });
+    return () => { cancelled = true; };
+  }, [wallpaper]);
+
+  return src;
 }
