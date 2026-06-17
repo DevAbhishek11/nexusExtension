@@ -115,11 +115,19 @@ function saveToStorage<T>(key: string, value: T): void {
   }
 }
 
+export interface CustomWallpaper {
+  id: string;
+  name: string;
+  dataUrl: string;
+  addedAt: number;
+}
+
 // Global state - simple singleton approach for performance
 let _settings: AppSettings = loadFromStorage("nt_settings", DEFAULT_SETTINGS);
 let _quickLinks: QuickLink[] = loadFromStorage("nt_links", DEFAULT_QUICK_LINKS);
 let _todos: TodoItem[] = loadFromStorage("nt_todos", []);
 let _note: Note = loadFromStorage("nt_note", { id: "1", content: "", updatedAt: Date.now() });
+let _customWallpapers: CustomWallpaper[] = loadFromStorage("nt_custom_wallpapers", []);
 
 const listeners = new Set<() => void>();
 function notify() { listeners.forEach(l => l()); }
@@ -222,4 +230,52 @@ export function useNote() {
   }, []);
 
   return { note: _note, updateNote };
+}
+
+export function useCustomWallpapers() {
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const cb = () => forceUpdate(n => n + 1);
+    listeners.add(cb);
+    return () => { listeners.delete(cb); };
+  }, []);
+
+  const addCustomWallpaper = useCallback((name: string, dataUrl: string): string => {
+    const id = `cw_${Date.now()}`;
+    const entry: CustomWallpaper = { id, name, dataUrl, addedAt: Date.now() };
+    const next = [..._customWallpapers, entry];
+    // Try saving; if quota exceeded, evict oldest one at a time until it fits
+    let toSave = next;
+    let saved = false;
+    while (toSave.length > 0) {
+      try {
+        localStorage.setItem("nt_custom_wallpapers", JSON.stringify(toSave));
+        saved = true;
+        break;
+      } catch {
+        toSave = toSave.slice(1); // drop oldest
+      }
+    }
+    if (!saved) throw new Error("localStorage quota exceeded even after eviction");
+    _customWallpapers = toSave;
+    notify();
+    return id;
+  }, []);
+
+  const deleteCustomWallpaper = useCallback((id: string) => {
+    _customWallpapers = _customWallpapers.filter(w => w.id !== id);
+    localStorage.setItem("nt_custom_wallpapers", JSON.stringify(_customWallpapers));
+    notify();
+  }, []);
+
+  const resolveWallpaper = useCallback((wallpaper: string | null): string | null => {
+    if (!wallpaper) return null;
+    if (wallpaper.startsWith("custom:")) {
+      const id = wallpaper.slice(7);
+      return _customWallpapers.find(w => w.id === id)?.dataUrl ?? null;
+    }
+    return wallpaper;
+  }, []);
+
+  return { customWallpapers: _customWallpapers, addCustomWallpaper, deleteCustomWallpaper, resolveWallpaper };
 }

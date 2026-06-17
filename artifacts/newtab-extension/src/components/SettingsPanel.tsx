@@ -2,9 +2,9 @@ import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Settings, Sun, Moon, Monitor, Image, Upload, Sliders, Search,
-  Eye, EyeOff, Type, Bell, BellOff, Zap, ZapOff, Download, Upload as UploadIcon, Palette
+  Eye, EyeOff, Type, Bell, BellOff, Zap, ZapOff, Download, Upload as UploadIcon, Palette, Trash2
 } from "lucide-react";
-import { useSettings, AppSettings } from "@/store/useStore";
+import { useSettings, useCustomWallpapers, AppSettings } from "@/store/useStore";
 
 const FONTS = ["Inter", "Poppins", "Playfair Display", "JetBrains Mono"];
 const SEARCH_ENGINES = [
@@ -84,16 +84,52 @@ function SliderRow({ label, value, min, max, onChange, unit = "" }: SliderRowPro
 
 export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { settings, updateSettings } = useSettings();
+  const { customWallpapers, addCustomWallpaper, deleteCustomWallpaper } = useCustomWallpapers();
   const fileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"appearance" | "widgets" | "wallpaper" | "search">("appearance");
+  const [uploadState, setUploadState] = useState<"idle" | "processing" | "error">("idle");
 
   const handleWallpaperUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const name = file.name.replace(/\.[^.]+$/, "") || `Wallpaper ${Date.now()}`;
+    e.target.value = "";
+    setUploadState("processing");
+
     const reader = new FileReader();
-    reader.onload = () => updateSettings({ wallpaper: reader.result as string });
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          // Compress: max 1920×1080, JPEG 75% — reduces 4-8MB photos to ~200-400KB
+          const MAX_W = 1920;
+          const MAX_H = 1080;
+          let { width, height } = img;
+          if (width > MAX_W || height > MAX_H) {
+            const ratio = Math.min(MAX_W / width, MAX_H / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.75);
+          const id = addCustomWallpaper(name, compressed);
+          updateSettings({ wallpaper: `custom:${id}` });
+          setUploadState("idle");
+        } catch {
+          setUploadState("error");
+          setTimeout(() => setUploadState("idle"), 3000);
+        }
+      };
+      img.onerror = () => { setUploadState("error"); setTimeout(() => setUploadState("idle"), 3000); };
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => { setUploadState("error"); setTimeout(() => setUploadState("idle"), 3000); };
     reader.readAsDataURL(file);
-  }, [updateSettings]);
+  }, [addCustomWallpaper, updateSettings]);
 
   const exportSettings = () => {
     const data = JSON.stringify({ settings, version: 1 }, null, 2);
@@ -318,17 +354,71 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                     </div>
                   </Section>
 
-                  <Section title="Custom Wallpaper">
+                  <Section title="Upload Wallpaper">
                     <button
-                      onClick={() => fileRef.current?.click()}
-                      className="w-full py-3 border-2 border-dashed border-white/30 hover:border-white/60 rounded-xl text-white/60 hover:text-white text-sm transition-all flex items-center justify-center gap-2"
+                      onClick={() => uploadState === "idle" && fileRef.current?.click()}
+                      disabled={uploadState === "processing"}
+                      className={`w-full py-3 border-2 border-dashed rounded-xl text-sm transition-all flex items-center justify-center gap-2
+                        ${uploadState === "processing" ? "border-white/20 text-white/40 cursor-wait" : ""}
+                        ${uploadState === "error" ? "border-red-400/60 text-red-400" : ""}
+                        ${uploadState === "idle" ? "border-white/30 hover:border-white/60 text-white/60 hover:text-white cursor-pointer" : ""}
+                      `}
                       data-testid="upload-wallpaper-button"
                     >
-                      <Upload size={16} />
-                      Upload Image
+                      {uploadState === "processing" ? (
+                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" /> Compressing…</>
+                      ) : uploadState === "error" ? (
+                        <><Upload size={16} /> Save failed — try a smaller image</>
+                      ) : (
+                        <><Upload size={16} /> Upload Image</>
+                      )}
                     </button>
                     <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleWallpaperUpload} />
+                    <p className="text-white/30 text-xs text-center">Images are compressed to fit in browser storage</p>
                   </Section>
+
+                  {customWallpapers.length > 0 && (
+                    <Section title="Your Uploads">
+                      <div className="grid grid-cols-2 gap-2">
+                        {customWallpapers.map(cw => {
+                          const refId = `custom:${cw.id}`;
+                          const isActive = settings.wallpaper === refId;
+                          return (
+                            <div
+                              key={cw.id}
+                              className={`relative h-16 rounded-xl overflow-hidden border-2 transition-all group ${isActive ? "border-primary" : "border-transparent hover:border-white/30"}`}
+                            >
+                              <button
+                                className="absolute inset-0 w-full h-full"
+                                onClick={() => updateSettings({ wallpaper: refId })}
+                              >
+                                <img src={cw.dataUrl} alt={cw.name} className="w-full h-full object-cover" />
+                                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs py-0.5 text-center truncate px-1">
+                                  {cw.name}
+                                </div>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isActive) updateSettings({ wallpaper: null });
+                                  deleteCustomWallpaper(cw.id);
+                                }}
+                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white/80 hover:text-red-400 hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Delete"
+                              >
+                                <Trash2 size={10} />
+                              </button>
+                              {isActive && (
+                                <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </Section>
+                  )}
 
                   <Section title="Adjustments">
                     <SliderRow label="Blur" value={settings.wallpaperBlur} min={0} max={20} onChange={v => updateSettings({ wallpaperBlur: v })} unit="px" />
