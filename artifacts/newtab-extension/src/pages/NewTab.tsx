@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wallpaper } from "@/components/Wallpaper";
+import { NotesPanel } from "@/components/NotesPanel";
+import { RemindersPanel } from "@/components/RemindersPanel";
 import { Clock } from "@/components/Clock";
 import { SearchBar } from "@/components/SearchBar";
 import { WeatherWidget } from "@/components/WeatherWidget";
@@ -43,6 +45,8 @@ const itemVariants = {
 export function NewTab() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [remindersOpen, setRemindersOpen] = useState(false);
   const { settings } = useSettings();
   useTheme();
 
@@ -61,7 +65,12 @@ export function NewTab() {
     <div className="min-h-screen w-full overflow-hidden relative" data-testid="newtab-page">
       <Wallpaper />
 
-      <Topbar onOpenSettings={() => setSettingsOpen(true)} onOpenPremium={() => setPremiumOpen(true)} />
+      <Topbar
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenPremium={() => setPremiumOpen(true)}
+        onOpenNotes={() => setNotesOpen(true)}
+        onOpenReminders={() => setRemindersOpen(true)}
+      />
 
       <main className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20">
         <AnimatePresence mode="wait">
@@ -141,6 +150,8 @@ export function NewTab() {
 
       <CommandPalette onOpenSettings={() => setSettingsOpen(true)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <NotesPanel open={notesOpen} onClose={() => setNotesOpen(false)} />
+      <RemindersPanel open={remindersOpen} onClose={() => setRemindersOpen(false)} />
       <AdBanner onUpgrade={() => setPremiumOpen(true)} />
       <PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />
     </div>

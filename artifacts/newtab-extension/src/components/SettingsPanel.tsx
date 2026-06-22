@@ -204,43 +204,76 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-40 flex items-center justify-end"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           data-testid="settings-overlay"
+          onClick={onClose}
         >
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+          />
           <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="h-full w-full max-w-sm glass shadow-2xl flex flex-col"
-            style={{ background: "rgba(0, 0, 0, 0.75)" }}
+            initial={{ opacity: 0, scale: 0.93, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.93, y: 18 }}
+            transition={{ type: "spring", stiffness: 280, damping: 28 }}
+            className="relative z-10 w-full max-w-3xl max-h-[88vh] glass-modal rounded-3xl overflow-hidden shadow-2xl flex"
             onClick={e => e.stopPropagation()}
             data-testid="settings-panel"
           >
-            <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-2">
-                <Settings size={18} className="text-white/70" />
-                <h2 className="text-white font-semibold">Settings</h2>
-              </div>
-              <button onClick={onClose} className="text-white/50 hover:text-white transition-colors" data-testid="close-settings">
-                <X size={20} />
-              </button>
-            </div>
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-white/15"
+              style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.50)" }}
+              data-testid="close-settings"
+            >
+              <X size={15} />
+            </button>
 
-            <div className="flex border-b border-white/10 shrink-0">
+            {/* Left sidebar: tab navigation + export/import */}
+            <div
+              className="w-52 flex-shrink-0 p-5 flex flex-col"
+              style={{ borderRight: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.32)" }}
+            >
+              <div className="flex items-center gap-2.5 mb-6 px-1">
+                <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+                  <Settings size={14} className="text-white" />
+                </div>
+                <h2 className="text-white font-semibold text-sm tracking-wide">Settings</h2>
+              </div>
               {TABS.map(t => (
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors ${tab === t.id ? "text-white border-b-2 border-primary" : "text-white/40 hover:text-white/70"}`}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all mb-1 ${tab === t.id ? "bg-white/15 text-white font-medium" : "text-white/45 hover:text-white/80 hover:bg-white/08"}`}
                 >
                   {t.icon}
                   {t.label}
                 </button>
               ))}
+              <div className="mt-auto pt-4 space-y-1" style={{ borderTop: "1px solid rgba(255,255,255,0.10)" }}>
+                <button
+                  onClick={exportSettings}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all hover:bg-white/08"
+                  style={{ color: "rgba(255,255,255,0.40)" }}
+                  data-testid="export-settings"
+                >
+                  <Download size={12} /> Export settings
+                </button>
+                <label
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer hover:bg-white/08"
+                  style={{ color: "rgba(255,255,255,0.40)" }}
+                  data-testid="import-settings-label"
+                >
+                  <UploadIcon size={12} /> Import settings
+                  <input type="file" accept=".json" className="hidden" onChange={importSettings} />
+                </label>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5">
+            {/* Right: scrollable content */}
+            <div className="flex-1 overflow-y-auto p-6">
               {tab === "appearance" && (
                 <>
                   <Section title="Theme">
@@ -301,19 +334,6 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                     />
                   </Section>
 
-                  <Section title="Data">
-                    <div className="flex gap-2">
-                      <button onClick={exportSettings} className="flex-1 flex items-center justify-center gap-2 py-2 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-xl text-xs transition-all" data-testid="export-settings">
-                        <Download size={12} />
-                        Export
-                      </button>
-                      <label className="flex-1 flex items-center justify-center gap-2 py-2 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-xl text-xs transition-all cursor-pointer" data-testid="import-settings-label">
-                        <UploadIcon size={12} />
-                        Import
-                        <input type="file" accept=".json" className="hidden" onChange={importSettings} />
-                      </label>
-                    </div>
-                  </Section>
                 </>
               )}
 

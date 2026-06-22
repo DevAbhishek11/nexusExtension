@@ -101,6 +101,29 @@ export function Clock() {
             {ampm}
           </span>
         )}
+
+        {/* Seconds digits */}
+        <div className="flex items-end gap-0 ml-2 mb-1.5">
+          <motion.span
+            className="text-white/25 font-extralight leading-none"
+            style={{ fontSize: "clamp(1.4rem, 3.8vw, 3.2rem)", marginBottom: "0.08em" }}
+            animate={{ opacity: [0.25, 0.07, 0.25] }}
+            transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+          >
+            :
+          </motion.span>
+          <span
+            className="text-white/48 font-extralight drop-shadow-lg leading-none tabular-nums"
+            style={{
+              fontSize: "clamp(1.4rem, 3.8vw, 3.2rem)",
+              textShadow: "0 2px 16px rgba(0,0,0,0.35)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            <AnimatedDigit value={seconds[0]} />
+            <AnimatedDigit value={seconds[1]} />
+          </span>
+        </div>
       </div>
 
       {/* Seconds progress bar */}

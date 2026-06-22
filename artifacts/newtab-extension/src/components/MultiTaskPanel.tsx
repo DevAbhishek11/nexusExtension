@@ -178,10 +178,31 @@ function PanelFrame({ panel, onUpdate, onRemove, onFocus }: {
           className="flex items-center gap-1.5 px-2 py-1.5 bg-black/30 border-b border-white/10 select-none drag-handle"
           onMouseDown={startDrag}
         >
-          {/* Traffic lights */}
-          <button onClick={() => onRemove(panel.id)} className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 flex-shrink-0" title="Close" />
-          <button onClick={() => onUpdate(panel.id, { minimized: !panel.minimized })} className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-400 flex-shrink-0" title="Minimize" />
-          <button onClick={() => onUpdate(panel.id, { x: 20, y: 20, width: 900, height: 600 })} className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-400 flex-shrink-0" title="Maximize" />
+          {/* Window controls */}
+          <button
+            onClick={() => onRemove(panel.id)}
+            onMouseDown={e => e.stopPropagation()}
+            className="w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex-shrink-0 flex items-center justify-center group/close transition-all"
+            title="Close"
+          >
+            <X size={8} className="text-red-900/0 group-hover/close:text-red-900/80 transition-colors" />
+          </button>
+          <button
+            onClick={() => onUpdate(panel.id, { minimized: !panel.minimized })}
+            onMouseDown={e => e.stopPropagation()}
+            className="w-4 h-4 rounded-full bg-yellow-500 hover:bg-yellow-400 flex-shrink-0 flex items-center justify-center group/min transition-all"
+            title={panel.minimized ? "Restore" : "Minimize"}
+          >
+            <Minimize2 size={7} className="text-yellow-900/0 group-hover/min:text-yellow-900/80 transition-colors" />
+          </button>
+          <button
+            onClick={() => onUpdate(panel.id, { x: 20, y: 20, width: Math.min(1200, window.innerWidth - 60), height: Math.min(800, window.innerHeight - 100) })}
+            onMouseDown={e => e.stopPropagation()}
+            className="w-4 h-4 rounded-full bg-green-500 hover:bg-green-400 flex-shrink-0 flex items-center justify-center group/max transition-all"
+            title="Maximize"
+          >
+            <Maximize2 size={7} className="text-green-900/0 group-hover/max:text-green-900/80 transition-colors" />
+          </button>
 
           <GripVertical size={11} className="text-white/20 ml-1" />
 

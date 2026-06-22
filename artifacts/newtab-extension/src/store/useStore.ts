@@ -232,6 +232,152 @@ export function useNote() {
   return { note: _note, updateNote };
 }
 
+// ============================================================
+// Multi-Notes (full notes with headings + color)
+// ============================================================
+export interface NoteItem {
+  id: string;
+  title: string;
+  content: string;
+  color: "yellow" | "blue" | "green" | "pink" | "purple" | "default";
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface QuickNoteItem {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Reminder {
+  id: string;
+  title: string;
+  description: string;
+  datetime: number;
+  repeat: "none" | "daily" | "weekly";
+  enabled: boolean;
+}
+
+let _notes: NoteItem[] = loadFromStorage("nt_notes", []);
+let _quickNotes: QuickNoteItem[] = loadFromStorage("nt_quick_notes", []);
+let _reminders: Reminder[] = loadFromStorage("nt_reminders_web", []);
+
+export function useNotes() {
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const cb = () => forceUpdate(n => n + 1);
+    listeners.add(cb);
+    return () => { listeners.delete(cb); };
+  }, []);
+
+  const addNote = useCallback((partial?: Partial<Omit<NoteItem, "id" | "createdAt" | "updatedAt">>): NoteItem => {
+    const note: NoteItem = {
+      id: Date.now().toString(),
+      title: partial?.title ?? "Untitled",
+      content: partial?.content ?? "",
+      color: partial?.color ?? "default",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    _notes = [note, ..._notes];
+    saveToStorage("nt_notes", _notes);
+    notify();
+    return note;
+  }, []);
+
+  const updateNote = useCallback((id: string, patch: Partial<Omit<NoteItem, "id" | "createdAt">>) => {
+    _notes = _notes.map(n => n.id === id ? { ...n, ...patch, updatedAt: Date.now() } : n);
+    saveToStorage("nt_notes", _notes);
+    notify();
+  }, []);
+
+  const deleteNote = useCallback((id: string) => {
+    _notes = _notes.filter(n => n.id !== id);
+    saveToStorage("nt_notes", _notes);
+    notify();
+  }, []);
+
+  return { notes: _notes, addNote, updateNote, deleteNote };
+}
+
+export function useQuickNotes() {
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const cb = () => forceUpdate(n => n + 1);
+    listeners.add(cb);
+    return () => { listeners.delete(cb); };
+  }, []);
+
+  const addQuickNote = useCallback((partial?: Partial<Omit<QuickNoteItem, "id" | "createdAt" | "updatedAt">>): QuickNoteItem => {
+    const note: QuickNoteItem = {
+      id: Date.now().toString(),
+      title: partial?.title ?? "Quick Note",
+      content: partial?.content ?? "",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    _quickNotes = [note, ..._quickNotes];
+    saveToStorage("nt_quick_notes", _quickNotes);
+    notify();
+    return note;
+  }, []);
+
+  const updateQuickNote = useCallback((id: string, patch: Partial<Omit<QuickNoteItem, "id" | "createdAt">>) => {
+    _quickNotes = _quickNotes.map(n => n.id === id ? { ...n, ...patch, updatedAt: Date.now() } : n);
+    saveToStorage("nt_quick_notes", _quickNotes);
+    notify();
+  }, []);
+
+  const deleteQuickNote = useCallback((id: string) => {
+    _quickNotes = _quickNotes.filter(n => n.id !== id);
+    saveToStorage("nt_quick_notes", _quickNotes);
+    notify();
+  }, []);
+
+  return { quickNotes: _quickNotes, addQuickNote, updateQuickNote, deleteQuickNote };
+}
+
+export function useReminders() {
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const cb = () => forceUpdate(n => n + 1);
+    listeners.add(cb);
+    return () => { listeners.delete(cb); };
+  }, []);
+
+  const addReminder = useCallback((partial?: Partial<Omit<Reminder, "id">>): Reminder => {
+    const r: Reminder = {
+      id: Date.now().toString(),
+      title: partial?.title ?? "Reminder",
+      description: partial?.description ?? "",
+      datetime: partial?.datetime ?? Date.now() + 60 * 60 * 1000,
+      repeat: partial?.repeat ?? "none",
+      enabled: partial?.enabled ?? true,
+    };
+    _reminders = [r, ..._reminders];
+    saveToStorage("nt_reminders_web", _reminders);
+    notify();
+    return r;
+  }, []);
+
+  const updateReminder = useCallback((id: string, patch: Partial<Omit<Reminder, "id">>) => {
+    _reminders = _reminders.map(r => r.id === id ? { ...r, ...patch } : r);
+    saveToStorage("nt_reminders_web", _reminders);
+    notify();
+  }, []);
+
+  const deleteReminder = useCallback((id: string) => {
+    _reminders = _reminders.filter(r => r.id !== id);
+    saveToStorage("nt_reminders_web", _reminders);
+    notify();
+  }, []);
+
+  return { reminders: _reminders, addReminder, updateReminder, deleteReminder };
+}
+
 export function useCustomWallpapers() {
   const [, forceUpdate] = useState(0);
   useEffect(() => {

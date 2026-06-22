@@ -1,11 +1,13 @@
 {
   "manifest_version": 3,
   "name": "NexTab - Modern New Tab",
-  "version": "1.0.0",
-  "description": "A beautiful, customizable new tab experience with clock, weather, quick links, and more.",
+  "version": "1.1.0",
+  "description": "A beautiful, customizable new tab experience with clock, weather, quick links, reminders, and more.",
   "permissions": [
     "storage",
-    "geolocation"
+    "geolocation",
+    "notifications",
+    "alarms"
   ],
   "chrome_url_overrides": {
     "newtab": "index.html"

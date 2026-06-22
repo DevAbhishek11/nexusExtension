@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Settings, Eye, EyeOff, Sun, Moon, Monitor, Keyboard, Crown,
-  Wifi, Battery, BatteryCharging
+  Settings, Eye, EyeOff, Sun, Moon, Monitor, Keyboard,
+  FileText, Bell
 } from "lucide-react";
 import { useSettings } from "@/store/useStore";
 import { MultiTaskPanel } from "./MultiTaskPanel";
@@ -12,6 +12,8 @@ import { DevTools } from "./DevTools";
 interface TopbarProps {
   onOpenSettings: () => void;
   onOpenPremium?: () => void;
+  onOpenNotes: () => void;
+  onOpenReminders: () => void;
 }
 
 function useSystemStatus() {
@@ -21,7 +23,7 @@ function useSystemStatus() {
   return status;
 }
 
-export function Topbar({ onOpenSettings, onOpenPremium }: TopbarProps) {
+export function Topbar({ onOpenSettings, onOpenPremium, onOpenNotes, onOpenReminders }: TopbarProps) {
   const { settings, updateSettings } = useSettings();
   const [showHint, setShowHint] = useState(false);
 
@@ -53,35 +55,38 @@ export function Topbar({ onOpenSettings, onOpenPremium }: TopbarProps) {
       className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-5 py-3"
       data-testid="topbar"
     >
-      {/* Left — branding + premium */}
+      {/* Left — branding */}
       <div className="flex items-center gap-2">
-        {/* <div className="flex items-center gap-2 glass px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 glass px-3 py-1.5 rounded-full">
           <div className="w-4 h-4 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 shadow-lg shadow-indigo-500/30" />
           <span className="text-white/70 text-xs font-medium tracking-wide hidden sm:block">Nexus Tab</span>
-        </div> */}
-
-        {settings.isPremium ? (
-          <div className="flex items-center gap-1.5 glass px-3 py-1.5 rounded-full text-yellow-300 text-xs font-medium">
-            <Crown size={11} />
-            <span className="hidden sm:block">Premium</span>
-          </div>
-        ) : (
-          <button
-            onClick={onOpenPremium}
-            className="flex items-center gap-1.5 glass px-3 py-1.5 rounded-full text-white/40 hover:text-yellow-300 text-xs transition-all hover:border-yellow-400/30"
-            data-testid="upgrade-button"
-            title="Upgrade to Premium"
-          >
-            <Crown size={11} />
-            <span className="hidden sm:block">Upgrade ₹49</span>
-          </button>
-        )}
+        </div>
       </div>
 
       {/* Right — controls */}
       <div className="flex items-center gap-1.5">
         <DevTools />
         <AmbientPlayer />
+
+        {/* Notes & Quick Notes */}
+        <button
+          onClick={onOpenNotes}
+          className="glass p-2 rounded-full text-white/40 hover:text-yellow-300 transition-all hover:scale-105"
+          title="Notes & Quick Notes"
+          data-testid="open-notes-button"
+        >
+          <FileText size={13} />
+        </button>
+
+        {/* Reminders */}
+        <button
+          onClick={onOpenReminders}
+          className="glass p-2 rounded-full text-white/40 hover:text-blue-300 transition-all hover:scale-105"
+          title="Reminders"
+          data-testid="open-reminders-button"
+        >
+          <Bell size={13} />
+        </button>
 
         <MultiTaskPanel />
 
