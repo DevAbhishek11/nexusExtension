@@ -210,21 +210,21 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
         >
           <div
             className="absolute inset-0"
-            style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+            style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.93, y: 18 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.93, y: 18 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
-            className="relative z-10 w-full max-w-3xl max-h-[88vh] glass-modal rounded-3xl overflow-hidden shadow-2xl flex"
+            className="relative z-10 w-full max-w-3xl max-h-[88vh] min-h-[80vh] glass-modal rounded-3xl overflow-hidden shadow-2xl flex"
             onClick={e => e.stopPropagation()}
             data-testid="settings-panel"
           >
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-white/15"
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-white/15 z-[999]"
               style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.50)" }}
               data-testid="close-settings"
             >
@@ -348,11 +348,11 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
                     <ToggleRow label="Weather" value={settings.showWeather} onChange={v => updateSettings({ showWeather: v })} testId="toggle-weather" />
                     <ToggleRow label="Quick Links" value={settings.showQuickLinks} onChange={v => updateSettings({ showQuickLinks: v })} testId="toggle-links" />
                     <ToggleRow label="Daily Quote" value={settings.showQuote} onChange={v => updateSettings({ showQuote: v })} testId="toggle-quote" />
+                    <ToggleRow label="Pomodoro Timer" value={settings.showPomodoro} onChange={v => updateSettings({ showPomodoro: v })} testId="toggle-pomodoro" />
                   </Section>
                   <Section title="Productivity Widgets">
-                    <ToggleRow label="To-do List" value={settings.showTodo} onChange={v => updateSettings({ showTodo: v })} testId="toggle-todo" />
-                    <ToggleRow label="Notes" value={settings.showNotes} onChange={v => updateSettings({ showNotes: v })} testId="toggle-notes" />
-                    <ToggleRow label="Pomodoro Timer" value={settings.showPomodoro} onChange={v => updateSettings({ showPomodoro: v })} testId="toggle-pomodoro" />
+                    {/* <ToggleRow label="To-do List" value={settings.showTodo} onChange={v => updateSettings({ showTodo: v })} testId="toggle-todo" />
+                    <ToggleRow label="Notes" value={settings.showNotes} onChange={v => updateSettings({ showNotes: v })} testId="toggle-notes" /> */}
                     <ToggleRow label="Habit Tracker" description="Track daily habits & streaks" value={settings.showHabits} onChange={v => updateSettings({ showHabits: v })} testId="toggle-habits" />
                     <ToggleRow label="Countdowns" description="Upcoming event timers" value={settings.showCountdown} onChange={v => updateSettings({ showCountdown: v })} testId="toggle-countdown" />
                   </Section>
