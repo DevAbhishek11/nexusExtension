@@ -213,6 +213,7 @@ export function SettingsPanel({ open, onClose }: { open: boolean; onClose: () =>
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full w-full max-w-sm glass shadow-2xl flex flex-col"
+            style={{ background: "rgba(0, 0, 0, 0.75)" }}
             onClick={e => e.stopPropagation()}
             data-testid="settings-panel"
           >
