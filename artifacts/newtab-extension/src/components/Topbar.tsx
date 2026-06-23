@@ -57,10 +57,10 @@ export function Topbar({ onOpenSettings, onOpenPremium, onOpenNotes, onOpenRemin
     >
       {/* Left — branding */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 glass px-3 py-1.5 rounded-full">
+        {/* <div className="flex items-center gap-2 glass px-3 py-1.5 rounded-full">
           <div className="w-4 h-4 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 shadow-lg shadow-indigo-500/30" />
           <span className="text-white/70 text-xs font-medium tracking-wide hidden sm:block">Nexus Tab</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Right — controls */}
